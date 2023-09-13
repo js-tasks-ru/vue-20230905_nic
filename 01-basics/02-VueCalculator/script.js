@@ -7,17 +7,17 @@ const vm = createApp({
       number1: 0,
       number2: 0,
       operator: "sum",
-      array: {
-        "sum": "+",
-        "subtract": "-",
-        "multiply": "*",
-        "divide": "/"
+      functions: {
+        "sum": (n1, n2) => n1 + n2,
+        "subtract": (n1, n2) => n1 - n2,
+        "multiply": (n1, n2) => n1 * n2,
+        "divide": (n1, n2) => n2 ? n1 / n2 : 'Error',
       }
     };
   },
   computed: {
     result() {
-      return eval(this.number1 + this.array[this.operator] + this.number2);
+      return (this.functions[this.operator](this.number1, this.number2));
     }
   },
 }).mount('#app');

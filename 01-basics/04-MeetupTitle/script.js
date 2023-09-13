@@ -15,16 +15,18 @@ async function fetchMeetupById(meetupId) {
 }
 
 // Требуется создать Vue приложение
-const vm = createApp({
+createApp({
   data() {
     return {
-      id: 1,
-      meetup: {"title": "MEETUP_TITLE2"},
+      id: 0,
+      meetup: {},
+      title: "MEETUP_TITLE"
     };
   },
-  methods: {
-    async responseTitle() {
+  watch: {
+    id: async function () {
       this.meetup = await fetchMeetupById (this.id);
+      this.title = this.meetup.title;
     },
   },
 }).mount('#app');

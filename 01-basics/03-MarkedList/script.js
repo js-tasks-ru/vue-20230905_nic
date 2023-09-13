@@ -30,16 +30,21 @@ const emails = [
 ];
 
 // Требуется создать Vue приложение
-const vm = createApp({
+createApp({
   data() {
     return {
       emails: emails,
       search: "",
+      matchedEmail: []
     };
   },
   computed: {
-    filter(email) {
-      return email.toLowerCase().includes(this.search.toLowerCase());
+    filteredEmails() {
+      this.matchedEmail.length = 0;
+      this.emails.forEach((email) => {
+        this.matchedEmail.push({'email': email, 'class': !!(this.search.length && email.toLowerCase().includes(this.search.toLowerCase()))});
+      });
+      return this.matchedEmail;
     },
   },
 }).mount('#app');

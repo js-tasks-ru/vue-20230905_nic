@@ -17,7 +17,7 @@
           <input type="search" v-model.trim="search"/>
         </div>
         <ul>
-          <li :class="(search.length>0 && email.toLowerCase().includes(search.toLowerCase()))?'marked':''" v-for="email in emails">{{ email }}</li>
+          <li :class="{marked: email.class}" v-for="email in filteredEmails">{{ email.email }}</li>
         </ul>
       </div>
     </div>
