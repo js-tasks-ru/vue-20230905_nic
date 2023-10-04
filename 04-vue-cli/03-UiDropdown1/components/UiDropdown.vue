@@ -1,18 +1,13 @@
 <template>
-  <div class="dropdown dropdown_opened">
-    <button type="button" class="dropdown__toggle dropdown__toggle_icon">
-      <UiIcon icon="tv" class="dropdown__icon" />
-      <span>Title</span>
+  <div class="dropdown" :class="{dropdown_opened:showList}">
+    <button type="button" class="dropdown__toggle" @click="toggleShow()" :class="{dropdown__toggle_icon:hasIcon}">
+      <UiIcon :icon="activeIcon" class="dropdown__icon" />
+      <span>{{ modelValue }}</span>
     </button>
-
-    <div class="dropdown__menu" role="listbox">
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <UiIcon icon="tv" class="dropdown__icon" />
-        Option 1
-      </button>
-      <button class="dropdown__item dropdown__item_icon" role="option" type="button">
-        <UiIcon icon="tv" class="dropdown__icon" />
-        Option 2
+    <div class="dropdown__menu" role="listbox" v-show="showList">
+      <button v-for="option in options" class="dropdown__item" :class="{dropdown__item_icon:hasIcon}" role="option" type="button" @click="toggleActiveTitle(option.text, option.icon)">
+        <UiIcon :icon="option.icon" class="dropdown__icon" />
+        {{ option.text }}
       </button>
     </div>
   </div>
@@ -23,8 +18,42 @@ import UiIcon from './UiIcon.vue';
 
 export default {
   name: 'UiDropdown',
-
   components: { UiIcon },
+  data() {
+    return {
+      showList: false,
+      activeIcon: this.options[0].icon,
+      modelValue: this.options[0].text
+    }
+  },
+  props: {
+    options: {
+      type: Array,
+      required: true
+    },
+    selectedLang: String
+  },
+  computed: {
+    hasIcon() {
+      let icon = false;
+      this.options.forEach ((option) => {
+        if(option.icon) {
+          icon = true;
+        }
+      });
+      return icon;
+    }
+  },
+  methods: {
+    toggleShow() {
+      this.showList = !this.showList;
+    },
+    toggleActiveTitle(title, icon) {
+      this.showList = !this.showList;
+      this.modelValue = title;
+      this.activeIcon = (icon)?icon:'';
+    },
+  },
 };
 </script>
 
