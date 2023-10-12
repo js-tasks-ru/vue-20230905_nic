@@ -9,9 +9,11 @@
     </div>
 
     <div class="calendar-view__grid">
-      <div v-for="item in grid" class="calendar-view__cell" :class="{'calendar-view__cell_inactive': !item.active}" tabindex="0">
+      <div v-for="item in grid" class="calendar-view__cell" :class="{'calendar-view__cell_inactive': !item.active}" :tabindex="(!item.active)?'0':''">
         <div class="calendar-view__cell-day">{{ item.day }}</div>
-        <div class="calendar-view__cell-content"></div>
+        <div class="calendar-view__cell-content">
+          <a v-for="meetup in item.meetups" :href="`/meetups/${meetup.id}`" class="calendar-event">{{ meetup.title }}</a>
+        </div>
       </div>
     </div>
   </div>
@@ -53,7 +55,7 @@ export default {
       if (targetMonth < 0 || targetMonth === 11) {
         --targetYear;
       }
-      this.date = new Date(targetYear, targetMonth, 1);
+      this.date = new Date(targetYear, targetMonth, 1, 0, 0, 0, 0);
       this.renderCalendar();
     },
     renderCalendar() {
@@ -61,34 +63,37 @@ export default {
       const dayOfWeek = new Date(this.date.setDate(1)).getDay();
       const nextMonth = new Date(this.date.setMonth(this.currentMonth+1));
       const lastDayOfMonth =  new Date(nextMonth.setDate(0)).getDate();
-      const prevMonth = new Date(this.date.setMonth(this.currentMonth)).setDate(0)
-      const lastDayOfPrevMonth =  new Date(prevMonth).getDate();
+      const prevMonth = new Date(this.date.setMonth(this.currentMonth)).setDate(0);
+      const lastDayOfPrevMonth = new Date(prevMonth).getDate();
       const prevMonthDaysCount = (dayOfWeek === 0) ? 6 : dayOfWeek - 1;
-      const gridFinalElemCount = ((lastDayOfMonth + prevMonthDaysCount) > 35) ? 6*7: 5*7;
+      const gridFinalElemCount = ((lastDayOfMonth + prevMonthDaysCount) > 35) ? 6*7 : 5*7;
       const nextMonthDays = gridFinalElemCount - (lastDayOfMonth + prevMonthDaysCount);
       if (dayOfWeek !== 1) {
         let prevMonthDays = lastDayOfPrevMonth - prevMonthDaysCount;
-        for (let i=0; i < prevMonthDaysCount; i++) {
-          const timestamp = this.toStartDay(new Date(prevMonth).setDate(prevMonthDays-1))
-          this.grid.push({'day':++prevMonthDays, 'active': false, 'timestamp': timestamp});
+        for (let i = 0; i < prevMonthDaysCount; i++) {
+          this.grid.push({'day': ++prevMonthDays, 'active': false});
         }
       }
       let day = 1;
-      for (let j=1; j <= lastDayOfMonth; j++) {
-        const timestamp = this.toStartDay(new Date(this.date).setDate(day));
-        this.grid.push({'day':day++, 'active': true, 'timestamp': timestamp});
+      for (let j = 1; j <= lastDayOfMonth; j++) {
+        const timestamp = this.toStartDay(new Date(this.date).setDate(day+1));
+        let meetups = [];
+        for (let l=0; l < this.meetups.length; l++) {
+          if (this.meetups[l].date === timestamp) {
+            meetups.push({'id': this.meetups[l].id, 'title': this.meetups[l].title});
+          }
+        }
+        this.grid.push({'day':day++, 'active': true, 'meetups': meetups});
       }
       if (nextMonthDays > 0) {
         let nextMonthDay = 1;
-        for (let k=1; k <= nextMonthDays; k++) {
-          const timestamp = this.toStartDay(new Date(nextMonth).setDate(nextMonthDay-1))
-          this.grid.push({'day':nextMonthDay++, 'active': false, 'timestamp': timestamp});
+        for (let k = 1; k <= nextMonthDays; k++) {
+          this.grid.push({'day': nextMonthDay++, 'active': false});
         }
       }
-      console.log(this.meetups);
     },
     toStartDay(timestamp) {
-      return Math.floor(timestamp/100000)*100000;
+      return new Date(timestamp).setUTCHours(0,0,0,0);
     }
   },
   mounted() {

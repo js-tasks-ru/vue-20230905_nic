@@ -1,11 +1,11 @@
 <template>
   <div class="dropdown" :class="{dropdown_opened:showList}">
     <button type="button" class="dropdown__toggle" @click="toggleShow()" :class="{dropdown__toggle_icon:hasIcon}">
-      <UiIcon :icon="activeIcon" class="dropdown__icon" />
-      <span>{{ modelValue }}</span>
+      <UiIcon :icon="activeIcon" v-if="activeIcon" class="dropdown__icon" />
+      <span>{{ activeText }}</span>
     </button>
     <div class="dropdown__menu" role="listbox" v-show="showList">
-      <button v-for="option in options" class="dropdown__item" :class="{dropdown__item_icon:hasIcon}" role="option" type="button" @click="toggleActiveTitle(option.text, option.icon)">
+      <button v-for="option in options" class="dropdown__item" :class="{dropdown__item_icon:hasIcon}" role="option" type="button" @click="toggleActive(option.value)">
         <UiIcon :icon="option.icon" class="dropdown__icon" />
         {{ option.text }}
       </button>
@@ -22,8 +22,10 @@ export default {
   data() {
     return {
       showList: false,
-      activeIcon: this.options[0].icon,
-      modelValue: this.options[0].text
+      currentOption: {},
+      activeIcon: '',
+      activeText: '',
+      activeValue: this.modelValue
     }
   },
   props: {
@@ -31,7 +33,10 @@ export default {
       type: Array,
       required: true
     },
-    selectedLang: String
+    modelValue: {
+      type: String,
+    },
+    title: String
   },
   computed: {
     hasIcon() {
@@ -48,11 +53,40 @@ export default {
     toggleShow() {
       this.showList = !this.showList;
     },
-    toggleActiveTitle(title, icon) {
+    toggleActive(value) {
       this.showList = !this.showList;
-      this.modelValue = title;
-      this.activeIcon = (icon)?icon:'';
+      this.$emit('update:modelValue', value);
     },
+  },
+
+  watch: {
+    modelValue: function () {
+      this.options.forEach((item) => {
+        if (item.value === this.modelValue) {
+          this.currentOption = item;
+        }
+      });
+      this.activeText = this.currentOption.text;
+      this.activeValue = this.currentOption.value;
+      this.activeIcon = (this.currentOption.icon) ? this.currentOption.icon : '';
+    },
+  },
+
+  mounted() {
+    if (this.modelValue) {
+      this.options.forEach((item) => {
+        if (item.value === this.modelValue) {
+          this.currentOption = item;
+        }
+      });
+    }
+    this.activeIcon = (this.modelValue) ? ((this.currentOption.icon) ? this.currentOption.icon : '') : '';
+    this.activeText = (this.modelValue) ? this.currentOption.text : this.title;
+    this.activeValue = this.modelValue;
+  },
+
+  emits: {
+    'update:modelValue': null,
   },
 };
 </script>
