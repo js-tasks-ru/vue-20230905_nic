@@ -3,7 +3,7 @@
     <div class="calendar-view__controls">
       <div class="calendar-view__controls-inner">
         <button class="calendar-view__control-left" type="button" aria-label="Previous month" @click="selectMonth('prev')"></button>
-        <div class="calendar-view__date" @click="renderCalendar()">{{ currentDate }}</div>
+        <div class="calendar-view__date">{{ currentDate }}</div>
         <button class="calendar-view__control-right" type="button" aria-label="Next month" @click="selectMonth('next')"></button>
       </div>
     </div>
@@ -52,26 +52,24 @@ export default {
       const offset = (direction === 'prev') ? -1 : 1;
       const targetMonth = this.currentMonth + offset;
       let targetYear = parseInt(this.date.toLocaleDateString(navigator.language,{year: 'numeric'}));
-      if (targetMonth < 0 || targetMonth === 11) {
-        --targetYear;
-      }
       this.date = new Date(targetYear, targetMonth, 1, 0, 0, 0, 0);
       this.renderCalendar();
     },
     renderCalendar() {
       this.grid = [];
       const dayOfWeek = new Date(this.date.setDate(1)).getDay();
-      const nextMonth = new Date(this.date.setMonth(this.currentMonth+1));
+      const copyDate = new Date(this.date);
+      const nextMonth = new Date(copyDate.setMonth(this.currentMonth+1));
       const lastDayOfMonth =  new Date(nextMonth.setDate(0)).getDate();
       const prevMonth = new Date(this.date.setMonth(this.currentMonth)).setDate(0);
       const lastDayOfPrevMonth = new Date(prevMonth).getDate();
       const prevMonthDaysCount = (dayOfWeek === 0) ? 6 : dayOfWeek - 1;
-      const gridFinalElemCount = ((lastDayOfMonth + prevMonthDaysCount) > 35) ? 6*7 : 5*7;
+      const gridFinalElemCount = ((lastDayOfMonth + prevMonthDaysCount) > 35) ? 6*7 : (lastDayOfMonth + prevMonthDaysCount > 28) ? 5*7 : 4*7;
       const nextMonthDays = gridFinalElemCount - (lastDayOfMonth + prevMonthDaysCount);
       if (dayOfWeek !== 1) {
-        let prevMonthDays = lastDayOfPrevMonth - prevMonthDaysCount;
+        let prevMonthDay = lastDayOfPrevMonth - prevMonthDaysCount;
         for (let i = 0; i < prevMonthDaysCount; i++) {
-          this.grid.push({'day': ++prevMonthDays, 'active': false});
+          this.grid.push({'day': ++prevMonthDay, 'active': false});
         }
       }
       let day = 1;
@@ -96,7 +94,7 @@ export default {
       return new Date(timestamp).setUTCHours(0,0,0,0);
     }
   },
-  mounted() {
+  created() {
     this.renderCalendar();
   }
 };

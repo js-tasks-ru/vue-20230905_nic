@@ -72,7 +72,7 @@ export default {
     },
   },
 
-  mounted() {
+  created() {
     if (this.modelValue) {
       this.options.forEach((item) => {
         if (item.value === this.modelValue) {
