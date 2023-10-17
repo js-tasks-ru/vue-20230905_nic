@@ -74,10 +74,10 @@ export default {
       }
       let day = 1;
       for (let j = 1; j <= lastDayOfMonth; j++) {
-        const timestamp = this.toStartDay(new Date(this.date).setDate(day+1));
+        const currentDay = new Date(this.date).setDate(day);
         let meetups = [];
         for (let l=0; l < this.meetups.length; l++) {
-          if (this.meetups[l].date === timestamp) {
+          if (this.convertingDate(this.meetups[l].date) === this.convertingDate(currentDay)) {
             meetups.push({'id': this.meetups[l].id, 'title': this.meetups[l].title});
           }
         }
@@ -90,8 +90,13 @@ export default {
         }
       }
     },
-    toStartDay(timestamp) {
-      return new Date(timestamp).setUTCHours(0,0,0,0);
+    convertingDate(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleDateString(navigator.language, {
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric'
+      })
     }
   },
   created() {
