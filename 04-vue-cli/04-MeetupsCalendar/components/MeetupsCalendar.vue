@@ -9,7 +9,7 @@
     </div>
 
     <div class="calendar-view__grid">
-      <div v-for="item in grid" class="calendar-view__cell" :class="{'calendar-view__cell_inactive': !item.active}" :tabindex="(!item.active)?'0':''">
+      <div v-for="item in renderCalendar()" class="calendar-view__cell" :class="{'calendar-view__cell_inactive': !item.active}" :tabindex="(!item.active)?'0':''">
         <div class="calendar-view__cell-day">{{ item.day }}</div>
         <div class="calendar-view__cell-content">
           <a v-for="meetup in item.meetups" :href="`/meetups/${meetup.id}`" class="calendar-event">{{ meetup.title }}</a>
@@ -25,7 +25,6 @@ export default {
   data() {
     return {
       date: new Date(),
-      grid: []
     }
   },
   props: {
@@ -56,7 +55,7 @@ export default {
       this.renderCalendar();
     },
     renderCalendar() {
-      this.grid = [];
+      const grid = [];
       const dayOfWeek = new Date(this.date.setDate(1)).getDay();
       const copyDate = new Date(this.date);
       const nextMonth = new Date(copyDate.setMonth(this.currentMonth+1));
@@ -69,7 +68,7 @@ export default {
       if (dayOfWeek !== 1) {
         let prevMonthDay = lastDayOfPrevMonth - prevMonthDaysCount;
         for (let i = 0; i < prevMonthDaysCount; i++) {
-          this.grid.push({'day': ++prevMonthDay, 'active': false});
+          grid.push({'day': ++prevMonthDay, 'active': false});
         }
       }
       let day = 1;
@@ -81,14 +80,15 @@ export default {
             meetups.push({'id': this.meetups[l].id, 'title': this.meetups[l].title});
           }
         }
-        this.grid.push({'day':day++, 'active': true, 'meetups': meetups});
+        grid.push({'day':day++, 'active': true, 'meetups': meetups});
       }
       if (nextMonthDays > 0) {
         let nextMonthDay = 1;
         for (let k = 1; k <= nextMonthDays; k++) {
-          this.grid.push({'day': nextMonthDay++, 'active': false});
+          grid.push({'day': nextMonthDay++, 'active': false});
         }
       }
+      return grid;
     },
     convertingDate(timestamp) {
       const date = new Date(timestamp);

@@ -22,10 +22,6 @@ export default {
   data() {
     return {
       showList: false,
-      currentOption: {},
-      activeIcon: '',
-      activeText: '',
-      activeValue: this.modelValue
     }
   },
   props: {
@@ -41,13 +37,25 @@ export default {
   computed: {
     hasIcon() {
       let icon = false;
-      this.options.forEach ((option) => {
-        if(option.icon) {
-          icon = true;
+      const hasOption = (element) => element.icon;
+      icon = this.options.some(hasOption);
+      return icon;
+    },
+    activeText() {
+      return (this.modelValue) ? this.currentOption.text : this.title;
+    },
+    activeIcon() {
+      return (this.currentOption.icon) ? this.currentOption.icon : '';
+    },
+    currentOption() {
+      let currentOption = {};
+      this.options.forEach((item) => {
+        if (item.value === this.modelValue) {
+          currentOption = item;
         }
       });
-      return icon;
-    }
+      return currentOption;
+    },
   },
   methods: {
     toggleShow() {
@@ -57,32 +65,6 @@ export default {
       this.showList = !this.showList;
       this.$emit('update:modelValue', value);
     },
-  },
-
-  watch: {
-    modelValue: function () {
-      this.options.forEach((item) => {
-        if (item.value === this.modelValue) {
-          this.currentOption = item;
-        }
-      });
-      this.activeText = this.currentOption.text;
-      this.activeValue = this.currentOption.value;
-      this.activeIcon = (this.currentOption.icon) ? this.currentOption.icon : '';
-    },
-  },
-
-  created() {
-    if (this.modelValue) {
-      this.options.forEach((item) => {
-        if (item.value === this.modelValue) {
-          this.currentOption = item;
-        }
-      });
-    }
-    this.activeIcon = (this.modelValue) ? ((this.currentOption.icon) ? this.currentOption.icon : '') : '';
-    this.activeText = (this.modelValue) ? this.currentOption.text : this.title;
-    this.activeValue = this.modelValue;
   },
 
   emits: {

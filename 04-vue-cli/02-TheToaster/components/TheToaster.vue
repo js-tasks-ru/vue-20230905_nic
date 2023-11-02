@@ -18,11 +18,11 @@ export default {
   components: { UiIcon, UiToast },
   methods: {
     error(message) {
-      this.toasts.push({'message': message, 'type': 'toast_error', 'time': new Date()});
+      this.toasts.push({'message': message, 'type': 'error', 'time': new Date()});
       setTimeout(() => this.removeToast(),5000);
     },
     success(message) {
-      this.toasts.push({'message': message, 'type': 'toast_success', 'time': new Date()});
+      this.toasts.push({'message': message, 'type': 'success', 'time': new Date()});
       setTimeout(() => this.removeToast(),5000);
     },
     removeToast() {

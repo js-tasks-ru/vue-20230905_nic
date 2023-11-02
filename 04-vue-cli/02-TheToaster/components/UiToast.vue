@@ -1,6 +1,6 @@
 <template>
   <div class="toast" :class="type">
-    <UiIcon class="toast__icon" :icon="(type === 'toast_success') ? 'check-circle' : 'alert-circle'" />
+    <UiIcon class="toast__icon" :icon="(type === 'success') ? 'check-circle' : 'alert-circle'" />
     <span>{{ toast }}</span>
   </div>
 </template>
