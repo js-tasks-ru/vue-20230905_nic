@@ -1,5 +1,5 @@
 <template>
-  <div class="toast" :class="type">
+  <div class="toast" :class="`toast_${type}`">
     <UiIcon class="toast__icon" :icon="(type === 'success') ? 'check-circle' : 'alert-circle'" />
     <span>{{ toast }}</span>
   </div>
