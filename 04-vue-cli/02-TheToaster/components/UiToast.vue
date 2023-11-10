@@ -1,34 +1,20 @@
 <template>
-  <div class="toasts">
-    <UiToast v-for="toast in toasts" :key="toast.message" :toast="toast.message" :type="toast.type"/>
+  <div class="toast" :class="`toast_${type}`">
+    <UiIcon class="toast__icon" :icon="(type === 'success') ? 'check-circle' : 'alert-circle'" />
+    <span>{{ toast }}</span>
   </div>
 </template>
 
 <script>
 import UiIcon from './UiIcon.vue';
-import UiToast from './UiToast.vue';
 
 export default {
-  name: 'TheToaster',
-  data() {
-    return {
-      toasts: [],
-    }
+  name: 'UiToast',
+  props: {
+    type: String,
+    toast: String
   },
-  components: { UiIcon, UiToast },
-  methods: {
-    error(message) {
-      this.toasts.push({'message': message, 'type': 'error', 'time': new Date()});
-      setTimeout(() => this.removeToast(),5000);
-    },
-    success(message) {
-      this.toasts.push({'message': message, 'type': 'success', 'time': new Date()});
-      setTimeout(() => this.removeToast(),5000);
-    },
-    removeToast() {
-      this.toasts.shift();
-    }
-  }
+  components: { UiIcon },
 };
 </script>
 
