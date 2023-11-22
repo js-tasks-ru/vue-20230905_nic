@@ -1,5 +1,5 @@
 <template>
-  <a class="link">Link!</a>
+  <component :is="($attrs.tag)?$attrs.tag:'router-link'" :to="$attrs.to" class="link"><slot></slot></component>
 </template>
 
 <script>
