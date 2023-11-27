@@ -1,10 +1,16 @@
 <template>
-  <component :is="($attrs.tag)?$attrs.tag:'router-link'" :to="$attrs.to" class="link"><slot></slot></component>
+  <component :is="tag" class="link"><slot></slot></component>
 </template>
 
 <script>
 export default {
   name: 'UiLink',
+  props: {
+    tag: {
+      type: String,
+      default: 'router-link',
+    },
+  }
 };
 </script>
 

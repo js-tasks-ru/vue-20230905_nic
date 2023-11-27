@@ -1,10 +1,10 @@
 <template>
   <component
-    :is="(tag)?tag:'button'"
+    :is="tag"
     class="button"
-    :class="[(variant) ? `button_${variant}` : 'button_secondary', (block) ? ' button_block' : '']"
+    :class="[classes, {'button_block': block}]"
     :type="(tag == 'button') ? 'button' : null"
-    :block="(block)?'true':'false'"
+    :block="(block) ? 'true':'false'"
   ><slot></slot></component>
 </template>
 
@@ -17,11 +17,14 @@ export default {
       type: String,
       default: 'button',
     },
-    variant: String
+    variant: {
+      type: String,
+      default: 'secondary'
+    },
   },
   computed: {
     classes() {
-      return ((this.variant) ? `button_${this.variant}` : 'button_secondary') + ((this.block) ? ' button_block' : '');
+      return `button_${this.variant}`;
     }
   }
 };
