@@ -9,7 +9,7 @@
     </div>
 
     <div class="calendar-view__grid">
-      <div v-for="item in renderCalendar()" class="calendar-view__cell" :class="{'calendar-view__cell_inactive': !item.active}" :tabindex="(!item.active)?'0':''">
+      <div v-for="item in renderCalendar" class="calendar-view__cell" :class="{'calendar-view__cell_inactive': !item.active}" :tabindex="(!item.active)?'0':''">
         <div class="calendar-view__cell-day">{{ item.day }}</div>
         <div class="calendar-view__cell-content">
           <a v-for="meetup in item.meetups" :href="`/meetups/${meetup.id}`" class="calendar-event">{{ meetup.title }}</a>
@@ -44,15 +44,6 @@ export default {
       return parseInt(this.date.toLocaleDateString(navigator.language,{
         month: 'numeric'
       }))-1;
-    }
-  },
-  methods: {
-    selectMonth(direction) {
-      const offset = (direction === 'prev') ? -1 : 1;
-      const targetMonth = this.currentMonth + offset;
-      let targetYear = parseInt(this.date.toLocaleDateString(navigator.language,{year: 'numeric'}));
-      this.date = new Date(targetYear, targetMonth, 1, 0, 0, 0, 0);
-      this.renderCalendar();
     },
     renderCalendar() {
       const grid = [];
@@ -90,6 +81,14 @@ export default {
       }
       return grid;
     },
+  },
+  methods: {
+    selectMonth(direction) {
+      const offset = (direction === 'prev') ? -1 : 1;
+      const targetMonth = this.currentMonth + offset;
+      let targetYear = parseInt(this.date.toLocaleDateString(navigator.language,{year: 'numeric'}));
+      this.date = new Date(targetYear, targetMonth, 1, 0, 0, 0, 0);
+    },
     convertingDate(timestamp) {
       const date = new Date(timestamp);
       return date.toLocaleDateString(navigator.language, {
@@ -98,9 +97,6 @@ export default {
         year: 'numeric'
       })
     }
-  },
-  created() {
-    this.renderCalendar();
   }
 };
 </script>
