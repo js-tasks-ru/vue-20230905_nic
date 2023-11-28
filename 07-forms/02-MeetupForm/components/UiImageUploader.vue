@@ -1,18 +1,10 @@
-<!-- STUB: ЭТО ЗАГЛУШКА ДЛЯ РУЧНОГО ТЕСТИРОВАНИЯ -->
-<!-- ВЫ МОЖЕТЕ ИСПОЛЬЗОВАТЬ ПОЛНУЮ ВЕРСИЮ КОМПОНЕНТА, ЕСЛИ УЖЕ РЕАЛИЗОВАЛИ ЕГО -->
-
 <template>
   <div class="image-uploader">
-    <label class="image-uploader__preview" :style="src && `--bg-url: url('${src}')`" @click.stop.prevent="handleClick">
-      <span class="image-uploader__text">{{ src ? 'Удалить' : 'Загрузить изображение' }}</span>
-      <input
-        ref="input"
-        type="file"
-        accept="image/*"
-        class="image-uploader__input"
-        v-bind="$attrs"
-        @change="mockFileSelect"
-      />
+    <label class="image-uploader__preview"
+           :class="{ 'image-uploader__preview-loading': uploading }"
+           :style="previewSrc">
+      <span class="image-uploader__text">{{ text }}</span>
+      <input type="file" accept="image/*" class="image-uploader__input"         @click="handleClick" @change="handleChange" ref="inputFile" v-bind="$attrs" />
     </label>
   </div>
 </template>
@@ -21,48 +13,70 @@
 export default {
   name: 'UiImageUploader',
   inheritAttrs: false,
-
-  props: {
-    uploader: {
-      type: Function,
-    },
-
-    preview: {
-      type: String,
-    },
-  },
-
-  emits: ['upload', 'select', 'error', 'remove'],
-
   data() {
     return {
-      src: this.preview,
+      imagePreview: this.preview,
+      uploading: false,
+      file: null,
     };
   },
-
-  methods: {
-    mockFileSelect() {
-      this.src = 'https://course-vue.javascript.ru/api/images/1';
-      const file = new File(['abc'], 'abc.jpeg', {
-        type: 'image/jpeg',
-      });
-      this.$emit('select', this.$refs.input.files[0] || file);
+  props: {
+    uploader: Function,
+    preview: String
+  },
+  emits: ['select', 'upload', 'error', 'remove'],
+  computed: {
+    previewSrc() {
+      return this.imagePreview ? `--bg-url:url(${this.imagePreview})` : null;
     },
-
-    mockRemoveFile() {
-      this.src = null;
-      this.$refs.input.value = '';
-      this.$emit('remove');
-    },
-
-    handleClick() {
-      if (this.src && this.src !== this.preview) {
-        this.mockRemoveFile();
+    text() {
+      if (this.uploading) {
+        return 'Загрузка...';
+      }
+      if (this.imagePreview) {
+        return 'Удалить изображение';
       } else {
-        this.mockFileSelect();
+        return 'Загрузить изображение';
       }
     },
   },
+  methods: {
+    handleClick(event) {
+      if (this.imagePreview || this.uploading) {
+        event.preventDefault();
+      }
+      if (this.imagePreview && !this.uploading) {
+        this.imagePreview = null;
+        this.$refs.inputFile.value = '';
+        this.$emit('remove');
+      }
+    },
+    handleChange(event) {
+      const file = event.target.files[0];
+      this.$emit('select', file);
+      this.imagePreview = URL.createObjectURL(file);
+      if (this.uploader) {
+        this.uploadFile(file);
+      }
+    },
+    async uploadFile(file) {
+      if (this.uploader) {
+        this.uploading = true;
+        try {
+          const result = await this.uploader(file);
+          this.uploading = false;
+          this.$emit('upload', result);
+        } catch (error) {
+          this.$refs.inputFile.value = '';
+          this.$emit('error', error);
+          this.uploading = false;
+          this.imagePreview = null;
+        }
+      } else {
+        this.uploading = false;
+      }
+    },
+  }
 };
 </script>
 

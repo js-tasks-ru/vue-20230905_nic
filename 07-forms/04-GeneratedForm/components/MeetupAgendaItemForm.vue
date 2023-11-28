@@ -1,31 +1,28 @@
 <template>
   <fieldset class="agenda-item-form">
-    <button type="button" class="agenda-item-form__remove-button">
+    <button type="button" class="agenda-item-form__remove-button" @click="handleRemove">
       <UiIcon icon="trash" />
     </button>
 
     <UiFormGroup>
-      <UiDropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" />
+      <UiDropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" v-model="internalAgendaItem.type" />
     </UiFormGroup>
 
     <div class="agenda-item-form__row">
       <div class="agenda-item-form__col">
         <UiFormGroup label="Начало">
-          <UiInput type="time" placeholder="00:00" name="startsAt" />
+          <UiInput type="time" placeholder="00:00" name="startsAt" v-model="internalAgendaItem.startsAt" @input="changeStartsAt($event.target.value)"/>
         </UiFormGroup>
       </div>
       <div class="agenda-item-form__col">
         <UiFormGroup label="Окончание">
-          <UiInput type="time" placeholder="00:00" name="endsAt" />
+          <UiInput type="time" placeholder="00:00" name="endsAt" v-model="internalAgendaItem.endsAt"/>
         </UiFormGroup>
       </div>
     </div>
 
-    <UiFormGroup label="Заголовок">
-      <UiInput name="title" />
-    </UiFormGroup>
-    <UiFormGroup label="Описание">
-      <UiInput multiline name="description" />
+    <UiFormGroup v-for="(input, index) in $options.agendaItemFormSchemas[internalAgendaItem.type]" :label="input.label">
+      <component :is="input.component" v-bind="input.props" v-model="internalAgendaItem[index]" />
     </UiFormGroup>
   </fieldset>
 </template>
@@ -163,6 +160,40 @@ export default {
     agendaItem: {
       type: Object,
       required: true,
+    },
+  },
+  data() {
+    return {
+      internalAgendaItem: {...this.agendaItem},
+    };
+  },
+  emits: ['remove', 'update:agendaItem'],
+  watch: {
+    internalAgendaItem: {
+      deep: true,
+      handler() {
+        this.$emit('update:agendaItem', {...this.internalAgendaItem});
+      },
+    },
+  },
+  computed: {
+    hoursDifference() {
+      const startsAtHours = parseInt(this.internalAgendaItem.startsAt.split(':')[0]);
+      const endsAtHours = parseInt(this.internalAgendaItem.endsAt.split(':')[0]);
+      return endsAtHours - startsAtHours;
+    },
+  },
+  methods: {
+    handleRemove() {
+      this.$emit('remove');
+      this.internalAgendaItem = {...this.agendaItem};
+    },
+    changeStartsAt(value) {
+      const startTime = value.split(':');
+      const summaryHours = parseInt(startTime[0]) + this.hoursDifference;
+      const resultHours = (summaryHours >= 24) ? summaryHours - 24 : (summaryHours >= 0) ? summaryHours: 24 + summaryHours;
+      const formattedHours = (resultHours.toString().length < 2) ? `0${resultHours}` : resultHours;
+      this.internalAgendaItem.endsAt = `${formattedHours}:${startTime[1]}`;
     },
   },
 };
