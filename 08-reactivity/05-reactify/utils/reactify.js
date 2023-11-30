@@ -1,4 +1,4 @@
-import { computed } from 'vue';
+import { unref, computed } from 'vue';
 
 /**
  * @template T
@@ -6,6 +6,8 @@ import { computed } from 'vue';
  * @returns {function(...[*]): ComputedRef<T>} - Функция вычисления от ref-ов, возвращающая вычисляемое значение computed
  */
 export function reactify(func) {
-  // ...
-  // return () => computed(() => {});
+  return (...args) => {
+    const unrefArgs = (args) => args.map(arg => unref(arg));
+    return computed(() => func(...unrefArgs(args)));
+  };
 }
