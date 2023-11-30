@@ -42,7 +42,10 @@ export default {
     },
 
     setData(sensors) {
-      this.sensors = sensors;
+      this.sensors = {};
+      Object.keys(sensors).forEach(id => {
+        this.sensors[id] = {...sensors[id]};
+      });
     },
   },
 };

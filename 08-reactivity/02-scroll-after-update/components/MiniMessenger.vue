@@ -1,7 +1,7 @@
 <template>
   <main class="mini-messenger">
     <ul class="messages">
-      <li v-for="message in messages" :key="message.id" class="message">
+      <li v-for="message in messages" :key="message.id" class="message" ref="itemRefs">
         {{ message.text }}
       </li>
     </ul>
@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import { ref, nextTick } from 'vue'
 let lastId = 0;
 
 export default {
@@ -28,6 +29,7 @@ export default {
         { id: lastId++, text: 'Third message' },
         { id: lastId++, text: 'Forth message' },
       ],
+      itemRefs: ref([])
     };
   },
 
@@ -36,12 +38,15 @@ export default {
       this.send();
     },
 
-    send() {
+    async send() {
       this.messages.push({
         id: lastId++,
         text: this.newMessage,
       });
       this.newMessage = '';
+      await nextTick();
+      const listItems = this.$refs.itemRefs;
+      listItems[listItems.length - 1].scrollIntoView();
     },
   },
 };
